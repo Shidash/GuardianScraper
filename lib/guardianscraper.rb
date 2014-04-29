@@ -10,20 +10,27 @@ class GuardianScraper
 
   # Download the article and save the text and other data
   def getArticle
-    html = Nokogiri::HTML(open("http://www.theguardian.com/world/2013/jun/06/nsa-phone-records-verizon-court-order"))
-    # Headline
-    # Description
-    # Date
-    # Author
-    # Documents linked
-    @caption = html.css("div.caption").text
-    @text = html.css("div#article-body-blocks").text
-    @mediaorg = "The Guardian"
-    @plaintext = html.css("div#article-body-blocks").text
+    articlehash = Hash.new
+    html = Nokogiri::HTML(open(@url))
+
+    # Gets misc data on article
+    articlehash[:headline] = html.css('h1[itemprop="name headline  "]').text
+    articlehash[:description] = html.css('div[itemprop="description"]').text
+    articlehash[:date] = html.css('time[itemprop="datePublished"]').text
+    articlehash[:author] = html.css("a.contributor").text
+    articlehash[:published_by] = "The Guardian"                                                     
+    articlehash[:caption] = html.css("div.caption").text
+
+    # Gets list of documents linked to
+    articlehash[:documents] = Array.new
+    html.css('div[itemprop="description"]').css("a").each do |d|
+      articlehash[:documents].push(d["href"])
+    end
+    
+    # Gets text of article
+    articlehash[:text] = html.css("div#article-body-blocks").text
+    articlehash[:plaintext] = html.css("div#article-body-blocks").text
+
+    JSON.pretty_generate(articlehash)
   end
-
-  # Convert to JSON
 end
-
-g = GuardianScraper.new("http://www.theguardian.com/world/2013/jun/06/nsa-phone-records-verizon-court-order")
-g.getArticle

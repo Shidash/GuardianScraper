@@ -1,1 +1,3 @@
-Scraper for articles on the NSA docs in the Guardian.
+Scraper for articles on the NSA docs in the Guardian. To use, require the gem 'guardianscraper', then-
+1. g = GuardianScraper.new("url to scrape")
+2. g.getArticle
